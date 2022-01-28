@@ -7,8 +7,9 @@ function App() {
   const step = 5;
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
-  const [repos, setRepos] = useState<any>({});
   const [debouncedSearch] = useDebounce(search, 200);
+  const [repos, setRepos] = useState<any>({});
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
     if (!debouncedSearch) {
@@ -16,6 +17,8 @@ function App() {
       setRepos({});
       return;
     }
+
+    setIsLoading(true);
 
     fetch(
       `https://api.github.com/search/repositories?q=${debouncedSearch}&per_page=${step}&page=${page}`
@@ -31,7 +34,9 @@ function App() {
                 items: [...(value.items || []), ...data.items],
               };
         })
-      );
+      )
+      .catch(console.error)
+      .finally(() => setIsLoading(false));
   }, [debouncedSearch, page]);
 
   const onChange: ChangeEventHandler = ({ target }) => {
@@ -93,8 +98,10 @@ function App() {
                 ))}
               </div>
 
+              {isLoading && <div>Loading...</div>}
+
               <div className="count">
-                {page * step} / {repos.total_count}
+                {repos.items?.length} / {repos.total_count}
               </div>
 
               <div>

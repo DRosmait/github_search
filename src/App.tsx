@@ -1,49 +1,58 @@
 import React, { ChangeEventHandler, useEffect, useState } from "react";
 import { useDebounce } from "use-debounce";
 
+import useDataFetchApi from "./hooks/useDataFetchApi";
+
 import "./App.css";
+
+interface GithubResponse {
+  items: any[];
+  total_count: number;
+}
 
 function App() {
   const step = 5;
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [debouncedSearch] = useDebounce(search, 200);
-  const [repos, setRepos] = useState<any>({});
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [repos, setRepos] = useState({} as GithubResponse);
 
+  const [{ isLoading, data }, doRequest] = useDataFetchApi(
+    "",
+    {} as GithubResponse
+  );
+
+  // after search changed
   useEffect(() => {
-    if (!debouncedSearch) {
-      setPage(1);
-      setRepos({});
-      return;
-    }
+    setPage(1); // reset page counter
+    setRepos({} as GithubResponse); // remove previous loaded repos
+  }, [setPage, debouncedSearch, doRequest]);
 
-    setIsLoading(true);
+  // after page changed
+  useEffect(() => {
+    // if search value is empty, do nothing
+    if (!debouncedSearch) return;
 
-    fetch(
+    doRequest(
       `https://api.github.com/search/repositories?q=${debouncedSearch}&per_page=${step}&page=${page}`
-    )
-      .then((res) => res.json())
-      .then((data) =>
-        setRepos((value: any) => {
-          return page === 1
-            ? data
-            : {
-                ...value,
-                ...data,
-                items: [...(value.items || []), ...data.items],
-              };
-        })
-      )
-      .catch(console.error)
-      .finally(() => setIsLoading(false));
-  }, [debouncedSearch, page]);
+    );
+  }, [page, debouncedSearch, doRequest]);
+
+  // on data from useDataFetchApi changed
+  useEffect(() => {
+    if (!data.items) return;
+
+    setRepos((value) => ({
+      ...data,
+      items: [...(value.items || []), ...data.items],
+    }));
+  }, [data, setRepos]);
 
   const onChange: ChangeEventHandler = ({ target }) => {
     setSearch((target as HTMLInputElement).value);
   };
 
-  const loadMore = () => {
+  const onLoadMore = () => {
     setPage((value) => value + 1);
   };
 
@@ -105,7 +114,7 @@ function App() {
               </div>
 
               <div>
-                <button className="btn" onClick={loadMore}>
+                <button className="btn" onClick={onLoadMore}>
                   Load more
                 </button>
               </div>

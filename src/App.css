@@ -77,7 +77,7 @@
 }
 
 .card__description {
-  line-clamp: 1;
+  white-space: break-spacesli;
 }
 
 .btn {

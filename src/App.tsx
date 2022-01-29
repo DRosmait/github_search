@@ -107,16 +107,18 @@ function App() {
                 ))}
               </div>
 
-              {isLoading && <div>Loading...</div>}
+              <div className="card-control">
+                <div className="count">
+                  {repos.items?.length} / {repos.total_count}
+                </div>
 
-              <div className="count">
-                {repos.items?.length} / {repos.total_count}
-              </div>
+                <div>
+                  <button className="btn" onClick={onLoadMore}>
+                    Load more
+                  </button>
+                </div>
 
-              <div>
-                <button className="btn" onClick={onLoadMore}>
-                  Load more
-                </button>
+                {isLoading && <div>Loading...</div>}
               </div>
             </div>
           )}

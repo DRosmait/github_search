@@ -43,7 +43,14 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 1em;
+  margin-bottom: 1em;
   place-items: stretch;
+}
+
+.card-control {
+  align-items: center;
+  display: flex;
+  flex-flow: column;
 }
 
 .card {
@@ -80,11 +87,16 @@
   white-space: break-spacesli;
 }
 
+.count {
+  margin-bottom: 1em;
+}
+
 .btn {
   background-color: var(--button-bg-color);
   border-radius: var(--border-radius);
   color: var(--secondary-bg-color);
   cursor: pointer;
+  margin-bottom: 1em;
   padding: 0.5em 1em;
 }
 
